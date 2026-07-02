@@ -1,12 +1,29 @@
-import React from "react";
+import React, { useState } from "react";
 import { FaRegTrashAlt } from "react-icons/fa";
 
-const InfoInput = ({ content }) => {
+const InfoInput = ({ content, onChange, onRemove }) => {
   // logic
-  const { label, text } = content;
+  const { id, label, text } = content;
 
-  const onRemove = () => {
+  const [value, setValue] = useState("");
+
+  const handleChange = (event) => {
+    //console.log("🚀 ~ handleChange ~ event:", event);    
+    //console.log("🚀 ~ handleChange ~ event.target:", event.target)    
+    const value = event.target.value; // const {value} = event.target 와 동일하다
+    setValue(value);
+    //console.log("🚀 ~ handleChange ~ value:", value); 
+    
+    // 부모에게 이벤트로 데이터 넘겨주기
+    onChange({...content, value: value})
+  }
+
+  const handleRemove = () => {
     console.log("재료 삭제하기");
+    // 버튼 클릭시 재료 목록에서 삭제
+
+    // 부모에게 id와 함계 데이터 보내기
+    onRemove(id);
   };
 
   // view
@@ -24,15 +41,17 @@ const InfoInput = ({ content }) => {
           type={"text"}
           id={label}
           name={label}
+          value={value}
           placeholder={"남은 재료를 입력해주세요"}
           className="border placeholder-gray-400 focus:outline-none
                       focus:border-black w-full pt-4 pr-9 pb-4 pl-4 mt-2 mr-0 mb-0 ml-0 text-base block bg-white
                       border-chef-gray-200 rounded-2xl placeholder:text-chef-gray-200"
+          onChange={handleChange}
         />
         <button
           type="button"
           className="absolute right-3 inset-y-0 flex items-center px-1"
-          onClick={onRemove}
+          onClick={handleRemove}
         >
           <FaRegTrashAlt />
         </button>
