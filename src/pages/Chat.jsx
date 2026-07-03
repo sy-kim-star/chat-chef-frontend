@@ -4,9 +4,9 @@ import PrevButton from "../components/PrevButton";
 import { MoonLoader } from "react-spinners";
 
 const Chat = ({ingredientList}) => {
-  console.log("🚀 ~ Chat ~ ingredientList:", ingredientList);
+  // console.log("🚀 ~ Chat ~ ingredientList:", ingredientList);
   const endpoint = process.env.REACT_APP_SERVER_ADDRESS;
-  console.log("🚀 ~ Chat ~ endpoint:", endpoint);
+  // console.log("🚀 ~ Chat ~ endpoint:", endpoint);
   
   // logic
   const [value, setValue] = useState("");
@@ -14,18 +14,64 @@ const Chat = ({ingredientList}) => {
   // TODO: set함수 추가하기
   const [messages, setMessages] = useState([]); // chatGPT와 사용자의 대화 메시지 배열
   const [infoMessages, setInfoMessages] = useState([]); //초기세팅 메시지
-  const [isInfoLoading] = useState(false); // 최초 정보 요청시 로딩
-  const [isMessageLoading] = useState(true); // 사용자와 메시지 주고 받을때 로딩
+  const [isInfoLoading, setIsInfoLoading] = useState(true); // 최초 정보 요청시 로딩
+  const [isMessageLoading, setIsMessageLoading] = useState(false); // 사용자와 메시지 주고 받을때 로딩
 
   const hadleChange = (event) => {
     const { value } = event.target;
-    console.log("value==>", value);
+    // console.log("value==>", value);
     setValue(value);
   };
+
+  const sendMessage = async (userMessage, allMessages) => {
+    // 로딩 보이게
+    setIsMessageLoading(true);
+
+    // "/message" API 호출 및 관련 state업데이트
+    try {
+      const response = await fetch(`${endpoint}/message`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userMessage, messages: allMessages }),
+      })
+      
+      const result = await response.json();
+      console.log("🚀 ~ sendMessage ~ result:", result);
+
+      // 응답받은 답변을 대화 목록에 추가
+      setMessages((prev) => [...prev, {
+        role: "assistant",
+        content: result.data.content,
+      }])
+      
+    } catch (error) {
+      console.error(error);
+    } finally {
+      // 로딩 안보이게
+      setIsMessageLoading(false);
+    }
+    
+  }
 
   const hadleSubmit = (event) => {
     event.preventDefault();
     console.log("메시지 보내기");
+    // 1. userMessage : 현재 사용자가 입력한 메시지 정보
+    const userMessage = {
+      role: "user",
+      content: value.trim()
+    }
+    // 2. messages : 기존 대화 목록
+    const allMessages = [...infoMessages, ...messages]
+    
+    // UI 업데이트를 위한 State 관리
+    // prev: 기존 대화 목록
+    setMessages((prev) => [...prev, userMessage] );
+    // 메시지 초기화
+    setValue("");
+    
+    // API 호출
+    sendMessage(userMessage, allMessages);
   };
 
 // 초기 세팅
@@ -40,7 +86,7 @@ const sendInfo = async (data) => {
     });
     // JSON 을 자바스크립트 객체로 변환
     const result = await response.json();
-    console.log("🚀 ~ sendInfo ~ result:", result)
+    // console.log("🚀 ~ sendInfo ~ result:", result)
     
 
     // 데이터가 잘 들어오지 않은경우는 뒷코드 실행안함
@@ -61,6 +107,9 @@ const sendInfo = async (data) => {
     setMessages((prev) => [...prev, { role, content }]);
   } catch (error) {
     console.error(error);
+  } finally {
+    // API 응답 완료 후 실행
+    setIsInfoLoading(false);
   }
 };
 
