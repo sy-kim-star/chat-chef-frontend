@@ -23,3 +23,11 @@ function App() {
 }
 
 export default App;
+
+/*
+https://www.netlify.com
+CI= 
+
+배포 후 사용자에게 알려 줄 주소로 꼭 기억하기
+https://yummy-chef-multi.netlify.app/
+*/
