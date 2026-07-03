@@ -5,7 +5,7 @@ import AddButton from "../components/AddButton";
 import Button from "../components/Button";
 import { useNavigate } from "react-router-dom";
 
-const Info = () => {
+const Info = ({sendIngredientList}) => {
   // logic
 
   // TODO: set함수 추가하기
@@ -42,8 +42,9 @@ const Info = () => {
 
   const handleNext = () => {
     // console.log("chat페이지로 이동");
-    // history("/chat");
-    console.log("ingredientList", ingredientList);
+    //console.log("ingredientList", ingredientList);
+    sendIngredientList(ingredientList);
+    history("/chat");    
   };
 
   // view
